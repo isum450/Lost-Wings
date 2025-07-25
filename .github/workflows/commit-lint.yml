@@ -1,0 +1,27 @@
+name: Commit Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install commitlint
+        run: npm install --save-dev @commitlint/{cli,config-conventional}
+
+      - name: Create commitlint config
+        run: echo "module.exports = {extends: ['@commitlint/config-conventional']}" > commitlint.config.js
+
+      - name: Lint commit messages
+        run: npx commitlint --from HEAD~${{ github.event.pull_request.commits }} --to HEAD --verbose
